@@ -5,18 +5,20 @@ function checksum(listOfId) {
 
   // Go through the list
   for (let i = 0; i < listOfId.length; i++) {
-    const id = mergeSort(listOfId[i]);
-    console.log(id);
+    const currentId = mergeSort(listOfId[i]);
     let hasCounted2 = false;
     let hasCounted3 = false;
 
-    for (let j = 0; j < id.length; j++) {
-      if (id[j] === id[j + 1] && id[j + 1] === id[j + 2]) {
+    for (let j = 0; j < currentId.length; j++) {
+      if (
+        currentId[j] === currentId[j + 1] &&
+        currentId[j + 1] === currentId[j + 2]
+      ) {
         !hasCounted3 && threeIdenticalLetter++;
         hasCounted3 = true;
 
         j = j + 2;
-      } else if (id[j] === id[j + 1]) {
+      } else if (currentId[j] === currentId[j + 1]) {
         !hasCounted2 && twoIdenticalLetter++;
         hasCounted2 = true;
 
