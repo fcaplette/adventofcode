@@ -2,56 +2,53 @@
 // are within two or more claims?
 
 function fabricCut(listOfArea) {
-  let listOfAreaConverted = [];
+  // Variables needed to keep track of the overlaps
+  let coordinates = {};
+  let overlapsCount = 0;
+
   // Iterate over each data once and convert it to an object
   for (let i = 0; i < listOfArea.length; i++) {
     let area = listOfArea[i];
     let areaData = {};
 
     // Start by finding all numbers from the data string
-    const regExp = new RegExp("^#([0-9]+)\s@\s([0-9]+),([0-9]+):\s([0-9])+x([0-9]+)$;"
+    const regExp = "^#([0-9]+) @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)";
     const parsedData = area.match(regExp);
-    console.log(parsedData);
-    // ["1", "1", "3", "4", "4"]
     // Parse that data to become integers assigned to the object
-    areaData.id = ParseInt(parsedData[0], 10);
-    areaData.minX = ParseInt(parsedData[1], 10);
-    areaData.minY = ParseInt(parsedData[2], 10);
-    areaData.width = ParseInt(parsedData[3], 10);
-    areaData.height = ParseInt(parsedData[4], 10);
-    areaData.maxX = areaData.minX + areaData.width;
-    areaData.maxY = areaData.minY + areaData.height;
+    areaData.id = parseInt(parsedData[1]);
+    areaData.minX = parseInt(parsedData[2]) + 1;
+    areaData.minY = parseInt(parsedData[3]) + 1;
+    areaData.width = parseInt(parsedData[4]);
+    areaData.height = parseInt(parsedData[5]);
+    areaData.maxX = areaData.minX + areaData.width -1;
+    areaData.maxY = areaData.minY + areaData.height -1;
 
 
-    // Add the new data set into a list
-    listOfAreaConverted.push(areaData);
+    // Create a key in the object for each coordinate and if it already
+    // exist, then push the value in another array only if that value
+    // does not exist yet.
+    for (let j = areaData.minX; j <= areaData.maxX; j++) {
+      for (let k = areaData.minY; k <= areaData.maxY; k++) {
 
-  }
+        // If the X coordinate does not exist, initiate an object and set the value
+        if (!coordinates.hasOwnProperty(`${j}`)) {
+            coordinates[`${j}`] = {};
+            coordinates[`${j}`][`${k}`] = 1;
+        // If the Y coordinate does not exist, set it to 1
+        } else if(!coordinates[j].hasOwnProperty(`${k}`)){
+            coordinates[`${j}`][`${k}`] = 1;
+        }
+        // If you already have a coordinate, then you found a duplicate!
+        else {
+           coordinates[`${j}`][`${k}`] += 1;
 
-  // For each ID, compare if iterator is
-  // bigger than minimum and smaller than maximum
-  for(let i = 0; i < listOfAreaConverted.length; i++){
-    for(let j = 1; j < listOfAreaConverted.length; j++){
-      // If the minX of i is bigger than minX of j
-      // Or if the maxX of i is smaller than the maxX of j
-      // Then there is an overlap!
-      if(
-        listOfAreaConverted[i].minX > listOfAreaConverted[j].minX ||
-        listOfAreaConverted[i].maxX < listOfAreaConverted[j].maxX
-      ){
-
-      }
-      // If the minY of i is bigger than minY of j
-      // Or if the maxY of i is smaller than the maxY of j
-      // Then there is an overlap!
-      if(
-        listOfAreaConverted[i].minY > listOfAreaConverted[j].minY ||
-        listOfAreaConverted[i].maxY < listOfAreaConverted[j].maxY
-      ){
-
+          // If that duplicate = 2, it means that it is the firs time that spot has been found.
+           if (coordinates[`${j}`][`${k}`] === 2) {
+            overlapsCount++;
+          }
+        }
       }
     }
   }
+  return overlapsCount;
 }
-
-fabricCut(["#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2"]);
