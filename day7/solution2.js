@@ -1,7 +1,8 @@
 // function that will return the string of consecutive actions
 
-function findStepOrder(listOfSteps) {
+function calculateTimeForCompletion(listOfSteps) {
   // Variables to keep track of the steps
+  let timeForCompletion = 0;
   const steps = [];
   let remainingSteps = {}; // To have a faster way to check which steps are done or not
   const executedSteps = {}; // Steps already completed
@@ -39,14 +40,40 @@ function findStepOrder(listOfSteps) {
   // Sort all the data alphabetically.
   const sortedSteps = mergeSort(steps);
 
-  console.log(sortedSteps);
+  processData();
 
-  const solution = processData();
-  return solution;
+  return timeForCompletion;
 
   function processData() {
-    let solution = "";
-    let counter = 0;
+    const times = {
+      A: 61,
+      B: 62,
+      C: 63,
+      D: 64,
+      E: 65,
+      F: 66,
+      G: 67,
+      H: 68,
+      I: 69,
+      J: 70,
+      K: 71,
+      L: 72,
+      M: 73,
+      N: 74,
+      O: 75,
+      P: 76,
+      Q: 77,
+      R: 78,
+      S: 79,
+      T: 80,
+      U: 81,
+      V: 82,
+      W: 83,
+      X: 84,
+      Y: 85,
+      Z: 86
+    };
+    let tasksQueue = [];
 
     for (let i = 0; i < sortedSteps.length; i++) {
       let foundLetter = true;
@@ -54,39 +81,63 @@ function findStepOrder(listOfSteps) {
       const currentStep = sortedSteps[i];
 
       const currentLetter = Object.keys(currentStep)[0];
-      counter++;
       // If remainingSteps is empty, break out of it;
-      if (!Object.keys(remainingSteps).length || counter > 1000) {
+      if (!Object.keys(remainingSteps).length) {
         break;
       }
 
       if (currentLetter in remainingSteps) {
+        if (tasksQueue.length > 5) {
+          updateTimesOfTasks();
+          i = -1; // Reset the loop
+        }
         if (currentStep[currentLetter].length === 0) {
-          // If the length of the array is 0, then no requirements are needed for this step
-          // Then add it to the solution and
-          updateSolution(currentLetter);
-          i = -1;
+          tasksQueue.push({
+            time: times[currentLetter],
+            letter: currentLetter
+          });
         } else {
           for (let j = 0; j < currentStep[currentLetter].length; j++) {
             const currentRequirement = currentStep[currentLetter][j];
-            console.log(currentRequirement);
             if (!(currentRequirement in executedSteps)) {
               foundLetter = false;
               break;
             }
           }
           if (foundLetter) {
-            updateSolution(currentLetter, i);
-            i = -1;
+            tasksQueue.push({
+              time: times[currentLetter],
+              letter: currentLetter
+            });
           }
         }
       }
+      if (i === sortedSteps.length - 1) {
+        updateTimesOfTasks();
+        i = -1; // reset the loop
+      }
     }
 
-    // You found the next logical letter, so add it to a string, remove it from
-    // the remainingSteps and remember that this letter is now available!
-    function updateSolution(letter, i) {
-      solution += letter;
+    function updateTimesOfTasks() {
+      let shortestTaskId;
+      for (let k = 0; k < tasksQueue.length; k++) {
+        const task = tasksQueue[k];
+
+        if (!tempTime || tempTime > task.time) {
+          shortestTaskId = k;
+        }
+      }
+
+      // Grab the time and the letter. Add the time to solution
+      const { time, letter } = tasksQueue[shortestTaskId];
+      timeForCompletion += time;
+
+      // Updates all the times in the queue
+      tasksQueue.forEach(task => {
+        task.time = task.time - time;
+      });
+      // Remove the task from the list of queue and steps
+      tasksQueue.slice(shortestTaskId, 1);
       executedSteps[letter] = true;
       delete remainingSteps[letter];
     }
