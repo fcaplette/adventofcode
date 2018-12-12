@@ -40,6 +40,7 @@ function calculateTimeForCompletion(listOfSteps) {
   // Sort all the data alphabetically.
   const sortedSteps = mergeSort(steps);
 
+
   processData();
 
   return timeForCompletion;
@@ -74,6 +75,7 @@ function calculateTimeForCompletion(listOfSteps) {
       Z: 86
     };
     let tasksQueue = [];
+    let counter = 0;
 
     for (let i = 0; i < sortedSteps.length; i++) {
       let foundLetter = true;
@@ -83,11 +85,12 @@ function calculateTimeForCompletion(listOfSteps) {
       const currentLetter = Object.keys(currentStep)[0];
       // If remainingSteps is empty, break out of it;
       if (!Object.keys(remainingSteps).length) {
+        updateTimesOfTasks()
         break;
       }
 
       if (currentLetter in remainingSteps) {
-        if (tasksQueue.length > 5) {
+        if (tasksQueue.length === 5) {
           updateTimesOfTasks();
           i = -1; // Reset the loop
         }
@@ -96,6 +99,8 @@ function calculateTimeForCompletion(listOfSteps) {
             time: times[currentLetter],
             letter: currentLetter
           });
+          delete remainingSteps[currentLetter];
+
         } else {
           for (let j = 0; j < currentStep[currentLetter].length; j++) {
             const currentRequirement = currentStep[currentLetter][j];
@@ -109,6 +114,7 @@ function calculateTimeForCompletion(listOfSteps) {
               time: times[currentLetter],
               letter: currentLetter
             });
+            delete remainingSteps[currentLetter];
           }
         }
       }
@@ -119,14 +125,16 @@ function calculateTimeForCompletion(listOfSteps) {
     }
 
     function updateTimesOfTasks() {
-      let shortestTaskId;
+      let shortestTaskId = 0;
+
       for (let k = 0; k < tasksQueue.length; k++) {
         const task = tasksQueue[k];
 
-        if (!tempTime || tempTime > task.time) {
+        if (task.time < tasksQueue[shortestTaskId].time) {
           shortestTaskId = k;
         }
       }
+
 
       // Grab the time and the letter. Add the time to solution
       const { time, letter } = tasksQueue[shortestTaskId];
@@ -136,10 +144,10 @@ function calculateTimeForCompletion(listOfSteps) {
       tasksQueue.forEach(task => {
         task.time = task.time - time;
       });
+
       // Remove the task from the list of queue and steps
-      tasksQueue.slice(shortestTaskId, 1);
+      tasksQueue.splice(shortestTaskId, 1);
       executedSteps[letter] = true;
-      delete remainingSteps[letter];
     }
   }
 
